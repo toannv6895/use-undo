@@ -35,23 +35,27 @@ const initialState = {
   past: [],
   present: null,
   future: [],
-  count: 0
+  count: 0,
 };
 
 type Options = {
   useCheckpoints?: boolean;
+  maxCapacity?: number;
 };
 
 const useUndo = <T>(
   initialPresent: T,
   opts: Options = {}
 ): [State<T>, Actions<T>] => {
-  const { useCheckpoints }: Options = {
+  const { useCheckpoints, maxCapacity }: Options = {
     useCheckpoints: false,
+    maxCapacity: Infinity,
     ...opts,
   };
 
-  const initialCount = Array.isArray(initialPresent) ? initialPresent.length : 0;
+  const initialCount = Array.isArray(initialPresent)
+    ? initialPresent.length
+    : 0;
 
   const reducer = <T>(state: State<T>, action: Action<T>) => {
     const { past, present, future } = state;
@@ -71,7 +75,7 @@ const useUndo = <T>(
           past: newPast,
           present: previous,
           future: [present, ...future],
-          count: newCount
+          count: newCount,
         };
       }
 
@@ -88,7 +92,7 @@ const useUndo = <T>(
           past: [...past, present],
           present: next,
           future: newFuture,
-          count: newCount
+          count: newCount,
         };
       }
 
@@ -104,11 +108,21 @@ const useUndo = <T>(
 
         const newCount = Array.isArray(newPresent) ? newPresent.length : 0;
 
+        let newPast = isNewCheckpoint === false ? past : [...past, present];
+
+        if (
+          maxCapacity &&
+          maxCapacity !== Infinity &&
+          newPast.length > maxCapacity
+        ) {
+          newPast = newPast.slice(newPast.length - maxCapacity);
+        }
+
         return {
-          past: isNewCheckpoint === false ? past : [...past, present],
+          past: newPast,
           present: newPresent,
           future: [],
-          count: newCount
+          count: newCount,
         };
       }
 
@@ -121,7 +135,7 @@ const useUndo = <T>(
           past: [],
           present: newPresent,
           future: [],
-          count: newCount
+          count: newCount,
         };
       }
     }
@@ -130,7 +144,7 @@ const useUndo = <T>(
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
     present: initialPresent,
-    count: initialCount
+    count: initialCount,
   }) as [State<T>, React.Dispatch<Action<T>>];
 
   const canUndo = state.past.length !== 0;
@@ -162,16 +176,16 @@ const useUndo = <T>(
   }, [state.count]);
 
   return [
-    state, 
-    { 
-      set, 
-      reset, 
-      undo, 
-      redo, 
-      canUndo, 
-      canRedo, 
+    state,
+    {
+      set,
+      reset,
+      undo,
+      redo,
+      canUndo,
+      canRedo,
       getCount,
-    }
+    },
   ];
 };
 
