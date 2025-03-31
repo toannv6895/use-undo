@@ -27,8 +27,8 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "build": "rimraf lib && microbundle -o lib/ --name use-undo-v2 --sourcemap false --no-compress",
-    "prepublishOnly": "yarn build",
-    "preversion": "yarn test:cov",
+    "prepublishOnly": "npm run build",
+    "preversion": "npm run test:cov",
     "test": "jest",
     "test:cov": "jest --coverage --runInBand --forceExit",
     "test:watch": "jest --watch",
