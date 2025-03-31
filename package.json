@@ -1,24 +1,32 @@
 {
-  "name": "use-undo",
-  "version": "1.1.1",
+  "name": "use-undo-v2",
+  "version": "1.0.0",
   "description": "undo/redo functionality with React Hooks",
   "license": "MIT",
-  "author": "homerchen19",
-  "homepage": "https://github.com/homerchen19/use-undo#readme",
+  "author": "Toan Nguyen",
+  "homepage": "https://github.com/toannv6895/use-undo#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/homerchen19/use-undo.git"
+    "url": "git+https://github.com/toannv6895/use-undo.git"
   },
   "bugs": {
-    "url": "https://github.com/homerchen19/use-undo/issues"
+    "url": "https://github.com/toannv6895/use-undo/issues"
   },
-  "source": "index.ts",
-  "main": "lib/use-undo.js",
-  "umd:main": "lib/use-undo.umd.js",
-  "module": "lib/use-undo.m.js",
+  "keywords": [
+    "react",
+    "hooks",
+    "undo",
+    "redo",
+    "history",
+    "state-management"
+  ],
+  "source": "src/index.ts",
+  "main": "lib/use-undo-v2.js",
+  "umd:main": "lib/use-undo-v2.umd.js",
+  "module": "lib/use-undo-v2.m.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "rimraf lib && microbundle -o lib/ --name use-undo --sourcemap false --no-compress",
+    "build": "rimraf lib && microbundle -o lib/ --name use-undo-v2 --sourcemap false --no-compress",
     "prepublishOnly": "yarn build",
     "preversion": "yarn test:cov",
     "test": "jest",
@@ -26,7 +34,8 @@
     "test:watch": "jest --watch",
     "pre-commit": "pretty-quick --staged",
     "pretty-quick": "pretty-quick",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "lint": "eslint src --ext .ts,.tsx"
   },
   "files": [
     "lib"
@@ -37,6 +46,11 @@
     "@types/node": "^15.6.1",
     "@types/react": "^17.0.8",
     "@types/react-dom": "^17.0.5",
+    "@typescript-eslint/eslint-plugin": "^5.30.0",
+    "@typescript-eslint/parser": "^5.30.0",
+    "eslint": "^8.18.0",
+    "eslint-plugin-react": "^7.30.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "husky": "^6.0.0",
     "jest": "^27.0.3",
     "microbundle": "^0.13.1",

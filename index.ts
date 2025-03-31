@@ -1,6 +1,7 @@
 import { useReducer, useCallback } from 'react';
+import { isDeepStrictEqual } from 'util';
 
-enum ActionType {
+const enum ActionType {
   Undo = 'UNDO',
   Redo = 'REDO',
   Set = 'SET',
@@ -14,6 +15,7 @@ export interface Actions<T> {
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  getCount: () => number;
 }
 
 interface Action<T> {
@@ -26,12 +28,14 @@ export interface State<T> {
   past: T[];
   present: T;
   future: T[];
+  count: number;
 }
 
 const initialState = {
   past: [],
   present: null,
   future: [],
+  count: 0
 };
 
 type Options = {
@@ -47,6 +51,8 @@ const useUndo = <T>(
     ...opts,
   };
 
+  const initialCount = Array.isArray(initialPresent) ? initialPresent.length : 0;
+
   const reducer = <T>(state: State<T>, action: Action<T>) => {
     const { past, present, future } = state;
 
@@ -59,10 +65,13 @@ const useUndo = <T>(
         const previous = past[past.length - 1];
         const newPast = past.slice(0, past.length - 1);
 
+        const newCount = Array.isArray(previous) ? previous.length : 0;
+
         return {
           past: newPast,
           present: previous,
           future: [present, ...future],
+          count: newCount
         };
       }
 
@@ -73,10 +82,13 @@ const useUndo = <T>(
         const next = future[0];
         const newFuture = future.slice(1);
 
+        const newCount = Array.isArray(next) ? next.length : 0;
+
         return {
           past: [...past, present],
           present: next,
           future: newFuture,
+          count: newCount
         };
       }
 
@@ -86,24 +98,30 @@ const useUndo = <T>(
           : true;
         const { newPresent } = action;
 
-        if (newPresent === present) {
+        if (newPresent === present || isDeepStrictEqual(newPresent, present)) {
           return state;
         }
+
+        const newCount = Array.isArray(newPresent) ? newPresent.length : 0;
 
         return {
           past: isNewCheckpoint === false ? past : [...past, present],
           present: newPresent,
           future: [],
+          count: newCount
         };
       }
 
       case ActionType.Reset: {
         const { newPresent } = action;
 
+        const newCount = Array.isArray(newPresent) ? newPresent.length : 0;
+
         return {
           past: [],
           present: newPresent,
           future: [],
+          count: newCount
         };
       }
     }
@@ -112,6 +130,7 @@ const useUndo = <T>(
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
     present: initialPresent,
+    count: initialCount
   }) as [State<T>, React.Dispatch<Action<T>>];
 
   const canUndo = state.past.length !== 0;
@@ -138,7 +157,22 @@ const useUndo = <T>(
     []
   );
 
-  return [state, { set, reset, undo, redo, canUndo, canRedo }];
+  const getCount = useCallback(() => {
+    return state.count;
+  }, [state.count]);
+
+  return [
+    state, 
+    { 
+      set, 
+      reset, 
+      undo, 
+      redo, 
+      canUndo, 
+      canRedo, 
+      getCount,
+    }
+  ];
 };
 
 export default useUndo;
