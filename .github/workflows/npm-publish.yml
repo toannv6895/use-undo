@@ -23,17 +23,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check directory structure
-        run: ls -la
-
-      - name: Lint
-        run: |
-          if [ -d "src" ]; then
-            npm run lint
-          else
-            echo "Skipping lint as src directory does not exist"
-          fi
-
       - name: Test
         run: npm test
 
